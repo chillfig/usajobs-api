@@ -35,6 +35,21 @@ The script can be run with the following command, while the `virtualenv` is acti
 $ python src/main.py
 ```
 
+There is a number of arguments that can be passed to the python script. 
+1. -p "Data Scientist;Data Analyst;Special Agent" ~ To choose different positions to be queried
+
+3. --filter ~ To filter the positions from the response, excluding those that do not incldue the position in the title. ("Data Scientist" is not contained in "Software Engineer" but is in the response)
+
+2. -k "ml;data;analytics" ~ To choose different keywords to be queried
+
+4. -o report.csv ~ To choose the file path of the output CSV file.
+
+5. -r johndoe@mailservice.com ~ To choose a different recipient email than what is in the .env file. 
+
+> Default arguments: 
+> 
+> `$ python src/main.py -p "Data Scientist;Data Analyst;Data Engineer" -k "data;analytics;analysis" -o report.csv --no-filter`
+
 Or, it can be turned into a daily cron job (daily at 7AM), by adding it to the end of the file after running `$ crontab -e`
 
 ```
