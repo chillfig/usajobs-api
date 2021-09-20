@@ -1,12 +1,12 @@
 import sqlite3
 from sqlite3 import Error
-# import os
+from typing import List
 
 from helpers import api_call, extract_date, get_salary_multiplier
 from variables import RESULTS_PER_PAGE_LIMIT
 
 
-def extract_transform(positions=None, keywords=None):
+def extract_transform(positions: List[str] = None, keywords: List[str] = None) -> List, List:
     """
     Queries the USAJOBS API for each individual position and/or keyword,
     returns array of tuple-positions with specific attributes.
@@ -86,7 +86,14 @@ def extract_transform(positions=None, keywords=None):
     return positions_rows, keywords_rows
     
 
-def get_values(content: dict, query: str):
+def get_values(content: dict, query: str) -> List[tuple]:
+    """
+    Selects the wanted attributes of each job posting within current page's content.
+
+    :param content dict: JSON response of SearchResultItems
+    :param query str: Queried string that yielded this content
+    :return: List[tuple] where each tuple is a job posting in the given JSON response page content 
+    """
 
     values = []
     for item in content:

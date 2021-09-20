@@ -17,12 +17,16 @@ from variables import DB_NAME, OUTPUT_PATH, RECIPIENT_EMAIL
 from datetime import date
 
 ## API Query functions
-## 
-## 
-## 
 
-def api_call(query: str, params=None):
+def api_call(query: str, params=None) -> dict:
+    """
+    Sends a GET request to the API with the provided parameters. 
+    Checks if the API is running properly. 
 
+    :param query str: Base query URL
+    :param params dict: Parameters to be sent with the API request
+    :return: dict from the JSON-response
+    """
     headers = {"Host": 'data.usajobs.gov', 
                "User-Agent": os.getenv("USAJOBS_USERNAME"),
                "Authorization-Key": os.getenv("USAJOBS_API_KEY")
@@ -45,8 +49,14 @@ def api_call(query: str, params=None):
 def extract_date(date_str) -> str:
     return date_str.split("T")[0]
 
-def get_salary_multiplier(rate_code):
+def get_salary_multiplier(rate_code: str) -> float:
+    """
+    Transforms the RemunerationIntervalCode to a float representing the fraction of the 
+    salary that is obtained per month
 
+    :param rate_code str: RemunerationIntervalCode
+    :return: float representing the multiplier 
+    """
     rates_multiplier = {
         'per year': 1/12,
         'per month': 1,
@@ -63,14 +73,12 @@ def get_salary_multiplier(rate_code):
     return list(map(lambda x: rates_multiplier[x], [rate_code]))[0]
 
 ## Reporting functions 
-## 
-## 
-## 
 
-def extract_averages():
+def extract_averages() -> List[tuple]:
     """
-    Returns:
-        
+    Executes the provided SQL script and returns the resulting rows. 
+
+    :return: List[tuple]
     """
     
     extract_script = open_sql_script("./src/db/data_averages.sql")
@@ -87,8 +95,16 @@ def extract_averages():
 
     return report
 
-def write_to_csv(report):
-    c = csv.writer(open(OUTPUT_PATH,"w"))
+def write_to_csv(report: List[tuple], CSV_PATH: str):
+    """
+    Writes the provided list of tuples to a OUTPUT_PATH csv file.
+
+    :param report List[tuple]: Report obtained from extract_averages()
+    :param CSV_PATH str: Output path for the csv file
+    :return: None 
+    """
+    
+    c = csv.writer(open(CSV_PATH,"w"))
 
     column_names = ["month", "position", "monthlySalary"]
 
@@ -96,6 +112,13 @@ def write_to_csv(report):
     c.writerows(report)
 
 def send_report(CSV_PATH, RECIPIENT_EMAIL):
+    """
+    Sends the CSV_PATH.csv file to the recipient email. 
+
+    :param CSV_PATH str: Path of the output csv file
+    :param RECIPIENT_EMAIL str:
+    """
+
     msg = MIMEMultipart()
     
     msg['From'] = os.getenv("SENDER_EMAIL")
@@ -124,11 +147,15 @@ def send_report(CSV_PATH, RECIPIENT_EMAIL):
         
 
 ## Database functions
-##
-## 
-##
 
-def db_connect(db_name):
+def db_connect(db_name: str):
+    """
+    Connects to a sqlite3 database with the provided name. Creates it if it does not exist. 
+
+    :param db_name str:
+    :return: Database connection object
+    """
+
     conn = None
     try:
         conn = sqlite3.connect(db_name)
@@ -138,7 +165,14 @@ def db_connect(db_name):
 
     return conn
 
-def db_create_table(conn, table_name):
+def db_create_table(conn, table_name_script: str):
+    """
+    Creates the table with the provided table_name_script if it does not exist already. 
+
+    :param conn: DB connection object
+    :param table_name str: SQL script to create the table with that name
+    """
+    
     try:
         cur = conn.cursor()
         cur.execute(table_name)
@@ -146,6 +180,13 @@ def db_create_table(conn, table_name):
         print(e)
 
 def db_populate(conn, rows, table):
+    """
+    Populates the table with the provided table name, by inserting the rows.  
+
+    :param conn: DB connection object
+    :param rows List[tuple]: Rows to be inserted to the table. Equal in length to the number of columns of the table.
+    :param table str: Name of the table to be populated
+    """
 
     if table == "positions":
         cur = conn.executemany("INSERT INTO positions VALUES (?, ?, ?, ?, ?, ?, ?, ?)", rows)
@@ -155,14 +196,23 @@ def db_populate(conn, rows, table):
     conn.commit()
     conn.close()
 
-def open_sql_script(sql_file_path):
-    with open(sql_file_path, 'r') as sql_file:
-        script = sql_file.read()
-    return script
+def open_sql_script(sql_file_path: str) -> str:
+    """
+    Returns the imported SQL script. 
+
+    :param sql_file_path str: File to be imported as a string.
+    :return: str of the whole provided SQL script
+    """
+
+    try:
+        with open(sql_file_path, 'r') as sql_file:
+            script = sql_file.read()
+            return script
+    except Error as e:
+        print(e)
 
 def db_flush():
-
     if os.path.exists(DB_NAME):
         os.remove(DB_NAME)
     else:
-        print("The database does not exist! ")
+        sys.exit("The database does not exist! ")
