@@ -22,28 +22,36 @@ def extract_transform(positions: List[str] = None, keywords: List[str] = None) -
     params = {"ResultsPerPage": RESULTS_PER_PAGE_LIMIT}
 
     positions_rows = []
-    if positions and isinstance(positions, list):    
+    if positions and isinstance(positions, list):
 
         for position_title in positions:
-            params["PositionTitle"] = position_title 
+            params["PositionTitle"] = position_title
 
             json_response_first_page = api_call(query_url, params=params)
             if json_response_first_page:
-                
-                first_page_content = json_response_first_page["SearchResult"]["SearchResultItems"]
+
+                first_page_content = json_response_first_page["SearchResult"][
+                    "SearchResultItems"
+                ]
                 first_page_values = get_values(first_page_content, position_title)
 
                 # Add the first page job postings to the rows
                 positions_rows += first_page_values
                 # Extract the number of pages this PositionTitle has
-                page_count = int(json_response_first_page["SearchResult"]["UserArea"]["NumberOfPages"])
+                page_count = int(
+                    json_response_first_page["SearchResult"]["UserArea"][
+                        "NumberOfPages"
+                    ]
+                )
 
                 for page in range(2, page_count + 1):
                     params["Page"] = page
 
                     page_json_response = api_call(query_url, params=params)
                     if page_json_response:
-                        page_content = page_json_response["SearchResult"]["SearchResultItems"]
+                        page_content = page_json_response["SearchResult"][
+                            "SearchResultItems"
+                        ]
                         # Add the current page job postings
                         positions_rows += get_values(page_content, position_title)
 
@@ -61,31 +69,38 @@ def extract_transform(positions: List[str] = None, keywords: List[str] = None) -
             json_response_first_page = api_call(query_url, params=params)
 
             if json_response_first_page:
-                
-                first_page_content = json_response_first_page["SearchResult"]["SearchResultItems"]
+
+                first_page_content = json_response_first_page["SearchResult"][
+                    "SearchResultItems"
+                ]
                 first_page_values = get_values(first_page_content, kw)
 
                 # Add the first page job postings to the rows
                 keywords_rows += first_page_values
 
                 # Extract the number of pages this PositionTitle has
-                page_count = int(json_response_first_page["SearchResult"]["UserArea"]["NumberOfPages"])
+                page_count = int(
+                    json_response_first_page["SearchResult"]["UserArea"][
+                        "NumberOfPages"
+                    ]
+                )
 
                 for page in range(2, page_count + 1):
                     params["Page"] = page
 
                     page_json_response = api_call(query_url, params=params)
                     if page_json_response:
-                        page_content = page_json_response["SearchResult"]["SearchResultItems"]
+                        page_content = page_json_response["SearchResult"][
+                            "SearchResultItems"
+                        ]
                         # Add the current page job postings
                         keywords_rows += get_values(page_content, kw)
 
             # Refresh Page# for next position
             params["Page"] = 1
 
-
     return positions_rows, keywords_rows
-    
+
 
 def get_values(content: dict, query: str) -> List[tuple]:
     """
@@ -93,7 +108,7 @@ def get_values(content: dict, query: str) -> List[tuple]:
 
     :param content dict: JSON response of SearchResultItems
     :param query str: Queried string that yielded this content
-    :return: List[tuple] where each tuple is a job posting in the given JSON response page content 
+    :return: List[tuple] where each tuple is a job posting in the given JSON response page content
     """
 
     values = []
@@ -112,6 +127,17 @@ def get_values(content: dict, query: str) -> List[tuple]:
         _salaryInterval = remuneration.get("RateIntervalCode")
         _salaryMultiplier = get_salary_multiplier(_salaryInterval.lower())
 
-        values.append((_id, _title, _orgName, _publishDate, _query, _startSalary, _salaryInterval, _salaryMultiplier))
+        values.append(
+            (
+                _id,
+                _title,
+                _orgName,
+                _publishDate,
+                _query,
+                _startSalary,
+                _salaryInterval,
+                _salaryMultiplier,
+            )
+        )
 
     return values

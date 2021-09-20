@@ -36,9 +36,6 @@ def test_create_table_db():
 
 
 def test_populate_db():
-    # don't forget to teardown
-    # try:
-
     pass
 
 
