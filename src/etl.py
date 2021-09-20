@@ -1,12 +1,13 @@
+from typing import List
+
 import sqlite3
 from sqlite3 import Error
-from typing import List
 
 from helpers import api_call, extract_date, get_salary_multiplier
 from variables import RESULTS_PER_PAGE_LIMIT
 
 
-def extract_transform(positions: List[str] = None, keywords: List[str] = None) -> List, List:
+def extract_transform(positions: List[str] = None, keywords: List[str] = None) -> List:
     """
     Queries the USAJOBS API for each individual position and/or keyword,
     returns array of tuple-positions with specific attributes.

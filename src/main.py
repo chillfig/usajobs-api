@@ -1,14 +1,10 @@
 import sqlite3
-from urllib.request import pathname2url
 
-from variables import DB_NAME, DATA_POSITIONS, KEYWORDS, FILTER_ENABLED, OUTPUT_PATH
+from variables import DB_NAME
 from helpers import *
 from etl import *
 
-from dotenv import load_dotenv
-load_dotenv()
-
-def main() -> None:
+def main(DATA_POSITIONS, KEYWORDS, FILTER_ENABLED, OUTPUT_PATH, RECIPIENT_EMAIL):
     """
     Creates and/or connects to a local sqlite database, and populates it with the
     job postings that are queried with either position titles, or keywords. 
@@ -60,7 +56,37 @@ def main() -> None:
     write_to_csv(report, OUTPUT_PATH)
     send_report(OUTPUT_PATH, RECIPIENT_EMAIL)
 
-    print("Report sent. ")
+    return print("Report sent. ")
 
 if __name__ == "__main__":
-    main()
+
+    import argparse
+
+    ap = argparse.ArgumentParser()
+
+    ap.add_argument("-p", "--positions", required=False, help="Position Titles to be queried. Wrap with '', separate with semicolon (;)! Example: -p 'Data Scientist;Data Analyst'")
+    ap.add_argument("-k", "--keywords", required=False, help="Keywords to be queried. Wrap with '', separate with semicolon (;)! Example: -k 'data;analytics'")
+
+    ap.add_argument('--filter', dest='filter_positions', action='store_true')
+    ap.add_argument('--no-filter', dest='filter_positions', action='store_false')
+
+    ap.add_argument("-o", "--output", required=False, help="Path for the output .csv file. ")
+    ap.add_argument("-r", "--recipient", required=False, help="Email of the recipient of the report csv file. If not provided, it will look at the .env file for the 'RECIPIENT_EMAIL' environment variable. ")
+
+    ap.set_defaults(filter_positions=False, 
+                    positions="Data Scientist;Data Analyst;Data Engineer",
+                    keywords="data;analytics;analysis", 
+                    output="report.csv", 
+                    recipient=os.getenv("RECIPIENT_EMAIL"))
+
+    args = vars(ap.parse_args())
+    
+    DATA_POSITIONS = args['positions'].split(";") if args['positions'] else None
+    KEYWORDS = args['keywords'].split(";") if args['keywords'] else None
+    FILTER_ENABLED = args['filter_positions']
+    
+    OUTPUT_PATH = args['output']
+    RECIPIENT_EMAIL = args['recipient']
+
+    # print(DATA_POSITIONS, KEYWORDS, FILTER_ENABLED, OUTPUT_PATH, RECIPIENT_EMAIL)
+    main(DATA_POSITIONS, KEYWORDS, FILTER_ENABLED, OUTPUT_PATH, RECIPIENT_EMAIL)

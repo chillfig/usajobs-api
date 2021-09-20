@@ -1,8 +1,11 @@
+import os
+import csv
+import sys
+from datetime import date
+from typing import List
+
 import sqlite3
 from sqlite3 import Error
-import sys
-import os 
-import csv
 
 import requests
 from requests.exceptions import HTTPError
@@ -13,8 +16,7 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 
-from variables import DB_NAME, OUTPUT_PATH, RECIPIENT_EMAIL
-from datetime import date
+from variables import DB_NAME
 
 ## API Query functions
 
@@ -175,7 +177,7 @@ def db_create_table(conn, table_name_script: str):
     
     try:
         cur = conn.cursor()
-        cur.execute(table_name)
+        cur.execute(table_name_script)
     except Error as e:
         print(e)
 

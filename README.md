@@ -49,7 +49,7 @@ Or, it can be turned into a daily cron job (daily at 7AM), by adding it to the e
 
 > Add the paygrade to the report .csv
 
-> Instead of using the variables.py, add paramaters to the call of the script (python src/main.py -p "Data Scientist" -k "analytics")
+> ~~Instead of using the variables.py, add paramaters to the call of the script (python src/main.py -p "Data Scientist" -k "analytics")~~
 
 > ~~compare with the average starting salary of a general data-related job -> add these rows to the query and CSV~~
 
@@ -59,6 +59,8 @@ different government organisations?
 > Catch potential errors
 
 > Populate the DB in batches (pages)
+
+> If the query is different from what the database currently has, flush the DB, and restart. 
 
 ## Questions
 

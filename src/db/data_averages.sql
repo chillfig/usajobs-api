@@ -14,7 +14,7 @@
 
 SELECT date(publishDate, 'start of month') AS 'month',
        'keywords' AS 'positionQuery',
-       ROUND(AVG(startingSalary * keywords.salaryMultiplier), 3) AS 'averageSalary'
+       ROUND(AVG(startingSalary * keywords.salaryMultiplier), 2) AS 'averageSalary'
 FROM keywords
 GROUP BY date(publishDate, 'start of month')
 
